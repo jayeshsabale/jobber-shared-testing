@@ -1,0 +1,29 @@
+name: Publish
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20.x"
+          registry-url: "https://registry.npmjs.org" # public npm
+          scope: "" # no scope needed for public package
+
+      # Install dependencies & build package
+      - run: npm install
+      - run: npm run build
+
+      # Publish package to npm (public)
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # only needed if publishing
