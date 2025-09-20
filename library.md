@@ -23,3 +23,5 @@ npm i winston winston-elasticsearch
 npm install --save-dev cross-env
 
 npm link
+
+npm token created at https://www.npmjs.com/settings/jayesh_sabale/tokens/ and then added that token as NPM_TOKEN in jobber-shared-testing git repos secrets
