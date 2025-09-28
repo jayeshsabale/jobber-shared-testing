@@ -4,23 +4,35 @@ import {
   UploadApiResponse,
 } from "cloudinary";
 
+function ensureCloudinaryConfig(cloudinaryInstance: typeof CloudinaryType) {
+  const { cloud_name, api_key, api_secret } = cloudinaryInstance.config();
+  if (!cloud_name || !api_key || !api_secret) {
+    throw new Error(
+      "Cloudinary not configured: Missing cloud_name, api_key, or api_secret. " +
+        "Make sure to call config.cloudinaryConfig() in your service startup."
+    );
+  }
+}
+
 /**
  * Upload an image or any file to Cloudinary.
- * Defaults to the globally configured Cloudinary instance.
  */
 export function uploads(
   file: string,
   public_id?: string,
   overwrite?: boolean,
   invalidate?: boolean,
-  cloudinaryInstance: typeof CloudinaryType = require("cloudinary").v2 // default instance
+  cloudinaryInstance: typeof CloudinaryType = require("cloudinary").v2
 ): Promise<UploadApiResponse | UploadApiErrorResponse | undefined> {
-  return new Promise((resolve) => {
+  // ✅ Guard against missing config
+  ensureCloudinaryConfig(cloudinaryInstance);
+
+  return new Promise((resolve, reject) => {
     cloudinaryInstance.uploader.upload(
       file,
       { public_id, overwrite, invalidate, resource_type: "auto" },
       (error, result) => {
-        if (error) resolve(error);
+        if (error) return reject(error);
         resolve(result);
       }
     );
@@ -29,16 +41,18 @@ export function uploads(
 
 /**
  * Upload a video to Cloudinary.
- * Defaults to the globally configured Cloudinary instance.
  */
 export function videoUpload(
   file: string,
   public_id?: string,
   overwrite?: boolean,
   invalidate?: boolean,
-  cloudinaryInstance: typeof CloudinaryType = require("cloudinary").v2 // default instance
+  cloudinaryInstance: typeof CloudinaryType = require("cloudinary").v2
 ): Promise<UploadApiResponse | UploadApiErrorResponse | undefined> {
-  return new Promise((resolve) => {
+  // ✅ Guard against missing config
+  ensureCloudinaryConfig(cloudinaryInstance);
+
+  return new Promise((resolve, reject) => {
     cloudinaryInstance.uploader.upload(
       file,
       {
@@ -49,7 +63,7 @@ export function videoUpload(
         resource_type: "video",
       },
       (error, result) => {
-        if (error) resolve(error);
+        if (error) return reject(error);
         resolve(result);
       }
     );
