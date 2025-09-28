@@ -1,27 +1,25 @@
-import cloudinary, {
+import {
+  v2 as CloudinaryType,
   UploadApiErrorResponse,
   UploadApiResponse,
 } from "cloudinary";
 
+/**
+ * Upload an image or any file to Cloudinary.
+ * Defaults to the globally configured Cloudinary instance.
+ */
 export function uploads(
   file: string,
   public_id?: string,
   overwrite?: boolean,
-  invalidate?: boolean
+  invalidate?: boolean,
+  cloudinaryInstance: typeof CloudinaryType = require("cloudinary").v2 // default instance
 ): Promise<UploadApiResponse | UploadApiErrorResponse | undefined> {
   return new Promise((resolve) => {
-    cloudinary.v2.uploader.upload(
+    cloudinaryInstance.uploader.upload(
       file,
-      {
-        public_id,
-        overwrite,
-        invalidate,
-        resource_type: "auto", // zip, images
-      },
-      (
-        error: UploadApiErrorResponse | undefined,
-        result: UploadApiResponse | undefined
-      ) => {
+      { public_id, overwrite, invalidate, resource_type: "auto" },
+      (error, result) => {
         if (error) resolve(error);
         resolve(result);
       }
@@ -29,26 +27,28 @@ export function uploads(
   });
 }
 
+/**
+ * Upload a video to Cloudinary.
+ * Defaults to the globally configured Cloudinary instance.
+ */
 export function videoUpload(
   file: string,
   public_id?: string,
   overwrite?: boolean,
-  invalidate?: boolean
+  invalidate?: boolean,
+  cloudinaryInstance: typeof CloudinaryType = require("cloudinary").v2 // default instance
 ): Promise<UploadApiResponse | UploadApiErrorResponse | undefined> {
   return new Promise((resolve) => {
-    cloudinary.v2.uploader.upload(
+    cloudinaryInstance.uploader.upload(
       file,
       {
         public_id,
         overwrite,
         invalidate,
-        chunk_size: 50000, // not more than 50mb
+        chunk_size: 50000,
         resource_type: "video",
       },
-      (
-        error: UploadApiErrorResponse | undefined,
-        result: UploadApiResponse | undefined
-      ) => {
+      (error, result) => {
         if (error) resolve(error);
         resolve(result);
       }
