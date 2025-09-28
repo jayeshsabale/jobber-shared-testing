@@ -1,34 +1,42 @@
+// shared/uploads.ts
 import {
   v2 as CloudinaryType,
-  UploadApiErrorResponse,
   UploadApiResponse,
+  UploadApiErrorResponse,
 } from "cloudinary";
 
-function ensureCloudinaryConfig(cloudinaryInstance: typeof CloudinaryType) {
-  const { cloud_name, api_key, api_secret } = cloudinaryInstance.config();
-  if (!cloud_name || !api_key || !api_secret) {
+let cloudinaryInstance: typeof CloudinaryType | null = null;
+
+/**
+ * Initialize the shared library with a configured Cloudinary instance.
+ * Must be called once at service startup.
+ */
+export function initCloudinary(instance: typeof CloudinaryType) {
+  cloudinaryInstance = instance;
+}
+
+function getCloudinary() {
+  if (!cloudinaryInstance) {
     throw new Error(
-      "Cloudinary not configured: Missing cloud_name, api_key, or api_secret. " +
-        "Make sure to call config.cloudinaryConfig() in your service startup."
+      "Cloudinary not initialized! Call initCloudinary(configuredInstance) first."
     );
   }
+  return cloudinaryInstance;
 }
 
 /**
- * Upload an image or any file to Cloudinary.
+ * Upload an image or any file to Cloudinary
  */
-export function uploads(
+export async function uploads(
   file: string,
   public_id?: string,
   overwrite?: boolean,
-  invalidate?: boolean,
-  cloudinaryInstance: typeof CloudinaryType = require("cloudinary").v2
-): Promise<UploadApiResponse | UploadApiErrorResponse | undefined> {
-  // ✅ Guard against missing config
-  ensureCloudinaryConfig(cloudinaryInstance);
+  invalidate?: boolean
+): Promise<UploadApiResponse | UploadApiErrorResponse> {
+  const cloudinary = getCloudinary();
 
   return new Promise((resolve, reject) => {
-    cloudinaryInstance.uploader.upload(
+    cloudinary.uploader.upload(
       file,
       { public_id, overwrite, invalidate, resource_type: "auto" },
       (error, result) => {
@@ -40,20 +48,18 @@ export function uploads(
 }
 
 /**
- * Upload a video to Cloudinary.
+ * Upload a video to Cloudinary
  */
-export function videoUpload(
+export async function videoUpload(
   file: string,
   public_id?: string,
   overwrite?: boolean,
-  invalidate?: boolean,
-  cloudinaryInstance: typeof CloudinaryType = require("cloudinary").v2
-): Promise<UploadApiResponse | UploadApiErrorResponse | undefined> {
-  // ✅ Guard against missing config
-  ensureCloudinaryConfig(cloudinaryInstance);
+  invalidate?: boolean
+): Promise<UploadApiResponse | UploadApiErrorResponse> {
+  const cloudinary = getCloudinary();
 
   return new Promise((resolve, reject) => {
-    cloudinaryInstance.uploader.upload(
+    cloudinary.uploader.upload(
       file,
       {
         public_id,
