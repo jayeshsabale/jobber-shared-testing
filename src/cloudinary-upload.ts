@@ -9,13 +9,12 @@ let cloudinaryInstance: typeof CloudinaryType | null = null;
 
 /**
  * Initialize the shared library with a configured Cloudinary instance.
- * Must be called once at service startup.
  */
 export function initCloudinary(instance: typeof CloudinaryType) {
   cloudinaryInstance = instance;
 }
 
-function getCloudinary() {
+function getCloudinary(): typeof CloudinaryType {
   if (!cloudinaryInstance) {
     throw new Error(
       "Cloudinary not initialized! Call initCloudinary(configuredInstance) first."
@@ -25,7 +24,7 @@ function getCloudinary() {
 }
 
 /**
- * Upload an image or any file to Cloudinary
+ * Upload an image or any file
  */
 export async function uploads(
   file: string,
@@ -48,7 +47,7 @@ export async function uploads(
 }
 
 /**
- * Upload a video to Cloudinary
+ * Upload a video
  */
 export async function videoUpload(
   file: string,
